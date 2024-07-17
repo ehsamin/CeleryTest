@@ -1,0 +1,65 @@
+version: '3.9'
+
+services:
+  web:
+    image : eshop_django
+    build:
+      context: ./eshop
+      dockerfile: Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./eshop:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+#      - rabbitmq
+    networks:
+      - mynetwork
+
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    networks:
+      - mynetwork
+
+  redis:
+    image: redis:6
+    networks:
+      - mynetwork
+
+#  rabbitmq:
+#    image: rabbitmq:3-management
+#    ports:
+#      - "15672:15672"
+#      - "5672:5672"
+#    networks:
+#      - mynetwork
+
+  celery:
+    build:
+      context: ./eshop
+      dockerfile: Dockerfile
+    command: celery -A CeleryTest worker --loglevel=info
+    volumes:
+      - ./eshop:/app
+    depends_on:
+      - db
+      - redis
+#      - rabbitmq
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
+
+volumes:
+  postgres_data:
