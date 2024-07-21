@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   web:
-    image : eshop_django
+    image: eshop_django
     build:
       context: ./eshop
       dockerfile: Dockerfile
@@ -16,7 +16,6 @@ services:
     depends_on:
       - db
       - redis
-#      - rabbitmq
     networks:
       - mynetwork
 
@@ -36,25 +35,49 @@ services:
     networks:
       - mynetwork
 
-#  rabbitmq:
-#    image: rabbitmq:3-management
-#    ports:
-#      - "15672:15672"
-#      - "5672:5672"
-#    networks:
-#      - mynetwork
-
   celery:
     build:
       context: ./eshop
       dockerfile: Dockerfile
-    command: celery -A CeleryTest worker --loglevel=info
+    command: celery -A CeleryTest worker --loglevel=info -Q queue1
     volumes:
       - ./eshop:/app
     depends_on:
       - db
       - redis
-#      - rabbitmq
+    networks:
+      - mynetwork
+
+  flower:
+    build:
+      context: ./eshop
+      dockerfile: Dockerfile
+    command: celery -A CeleryTest flower --port=5555
+    ports:
+      - "5555:5555"
+    volumes:
+      - ./eshop:/app
+    depends_on:
+      - db
+      - redis
+    networks:
+      - mynetwork
+
+  stand_alone_celery:
+    container_name: stand_alone_celery
+    build:
+      context: ./celery_worker
+      dockerfile: Dockerfile
+    command: celery -A celery_base worker --loglevel=info -Q queue2
+    volumes:
+      - ./celery_worker:/app
+    environment:
+      - BROKER_URL=redis://redis:6379/0
+      - RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+      - web
     networks:
       - mynetwork
 

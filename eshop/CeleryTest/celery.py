@@ -8,6 +8,10 @@ app = Celery('CeleryTest')
 
 app.config_from_object('CeleryTest.settings', namespace='CELERY')
 
+app.conf.task_routes = {
+    'notifications.tasks.send_discount_emails': {'queue': 'queue1'}
+}
+
 
 app.autodiscover_tasks()
 
