@@ -8,11 +8,17 @@ app = Celery('CeleryTest')
 
 app.config_from_object('CeleryTest.settings', namespace='CELERY')
 
-app.conf.task_routes = {
-    'notifications.tasks.send_discount_emails': {'queue': 'queue1'}
+# app.conf.task_routes = {
+#     'notifications.tasks.send_discount_email': {'queue': 'queue1'},
+#     'notifications.tasks.send_data_for_ml': {'queue': 'queue2'},
+# }
+
+app.conf.broker_transport_options = {
+    'priority_steps': list(range(10)),
+    'sep': ':',
+    'queue_order_strategy': 'priority',
 }
 
 
-app.autodiscover_tasks()
-
+app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 

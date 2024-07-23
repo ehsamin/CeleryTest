@@ -39,7 +39,7 @@ services:
     build:
       context: ./eshop
       dockerfile: Dockerfile
-    command: celery -A CeleryTest worker --loglevel=info -Q queue1
+    command: celery -A CeleryTest worker --loglevel=info -Q celery,celery:1,celery:2,celery:3
     volumes:
       - ./eshop:/app
     depends_on:
@@ -63,23 +63,23 @@ services:
     networks:
       - mynetwork
 
-  stand_alone_celery:
-    container_name: stand_alone_celery
-    build:
-      context: ./celery_worker
-      dockerfile: Dockerfile
-    command: celery -A celery_base worker --loglevel=info -Q queue2
-    volumes:
-      - ./celery_worker:/app
-    environment:
-      - BROKER_URL=redis://redis:6379/0
-      - RESULT_BACKEND=redis://redis:6379/0
-    depends_on:
-      - db
-      - redis
-      - web
-    networks:
-      - mynetwork
+#  stand_alone_celery:
+#    container_name: stand_alone_celery
+#    build:
+#      context: ./celery_worker
+#      dockerfile: Dockerfile
+#    command: celery -A celery_base worker --loglevel=info -Q queue2
+#    volumes:
+#      - ./celery_worker:/app
+#    environment:
+#      - BROKER_URL=redis://redis:6379/0
+#      - RESULT_BACKEND=redis://redis:6379/0
+#    depends_on:
+#      - db
+#      - redis
+#      - web
+#    networks:
+#      - mynetwork
 
 networks:
   mynetwork:
