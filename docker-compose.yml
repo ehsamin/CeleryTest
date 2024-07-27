@@ -1,6 +1,16 @@
 version: '3.9'
 
 services:
+
+
+
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
   web:
     image: eshop_django
     build:
@@ -16,6 +26,7 @@ services:
     depends_on:
       - db
       - redis
+      - rabbitmq
     networks:
       - mynetwork
 
@@ -45,6 +56,7 @@ services:
     depends_on:
       - db
       - redis
+      - rabbitmq
     networks:
       - mynetwork
 
