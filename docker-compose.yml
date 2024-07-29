@@ -10,6 +10,8 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    networks:
+      - mynetwork
 
   web:
     image: eshop_django
@@ -50,7 +52,7 @@ services:
     build:
       context: ./eshop
       dockerfile: Dockerfile
-    command: celery -A CeleryTest worker --loglevel=info -Q celery,celery:1,celery:2,celery:3
+    command: celery -A CeleryTest worker --loglevel=info -Q tasks
     volumes:
       - ./eshop:/app
     depends_on:
